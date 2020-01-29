@@ -77,6 +77,12 @@ objects:
       spec:
         containers:
         - image: image-registry.openshift-image-registry.svc:5000/blah/demo@sha256:6e7906afef5b42272bbcaa6897ac4e13a8f5bc249297dc7b2ff3531934e324ed
+          env:
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: environment-def
+                  key: environment
           imagePullPolicy: Always
           name: demo
           ports:
@@ -140,6 +146,12 @@ objects:
       name: demo
       weight: 100
     wildcardPolicy: None
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: environment-def
+  data:
+    environment: ${ENVIRONMENT}
 parameters:
 - description: "What environment are we running in"
   name: ENVIRONMENT
