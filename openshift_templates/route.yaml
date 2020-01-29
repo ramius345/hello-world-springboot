@@ -1,0 +1,34 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    openshift.io/host.generated: "true"
+  creationTimestamp: "2020-01-28T05:11:05Z"
+  labels:
+    app: demo
+    app.kubernetes.io/component: demo
+    app.kubernetes.io/instance: demo
+  name: demo
+  namespace: blah
+  resourceVersion: "2042196"
+  selfLink: /apis/route.openshift.io/v1/namespaces/blah/routes/demo
+  uid: 016ca6c9-6cc0-45cc-a3ce-64ce3a600326
+spec:
+  host: demo-blah.apps.cluster-ee65.sandbox1895.opentlc.com
+  port:
+    targetPort: 8080-tcp
+  to:
+    kind: Service
+    name: demo
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress:
+  - conditions:
+    - lastTransitionTime: "2020-01-28T05:11:06Z"
+      status: "True"
+      type: Admitted
+    host: demo-blah.apps.cluster-ee65.sandbox1895.opentlc.com
+    routerCanonicalHostname: apps.cluster-ee65.sandbox1895.opentlc.com
+    routerName: default
+    wildcardPolicy: None

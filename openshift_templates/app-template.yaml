@@ -1,0 +1,149 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: demo-springboot-app-template
+  annotations:
+    description: "Demo Github Springboot Application"
+    tags: "demo"
+objects:
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    name: demo
+  spec:
+    lookupPolicy:
+      local: false
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    name: demo
+  spec:
+    failedBuildsHistoryLimit: 5
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: demo:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        uri: https://github.com/ramius345/hello-world-springboot
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: java:8
+          namespace: openshift
+      type: Source
+    successfulBuildsHistoryLimit: 5
+    triggers:
+    - github:
+        secret: xmfdavY0kAifpe5wQg7E
+      type: GitHub
+    - generic:
+        secret: A6EltsAVwJF5HB2mR6Ta
+      type: Generic
+    - type: ConfigChange
+    - imageChange:
+        lastTriggeredImageID: image-registry.openshift-image-registry.svc:5000/openshift/java@sha256:6e57efae4828dbae77e18f12d2d3691df959e344fcd87e91ec38e03c5aec5f98
+      type: ImageChange
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    name: demo
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      deploymentconfig: demo
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          deploymentconfig: demo
+      spec:
+        containers:
+        - image: image-registry.openshift-image-registry.svc:5000/blah/demo@sha256:6e7906afef5b42272bbcaa6897ac4e13a8f5bc249297dc7b2ff3531934e324ed
+          imagePullPolicy: Always
+          name: demo
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+          - containerPort: 8778
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - demo
+        from:
+          kind: ImageStreamTag
+          name: demo:latest
+        lastTriggeredImage: image-registry.openshift-image-registry.svc:5000/blah/demo@sha256:6e7906afef5b42272bbcaa6897ac4e13a8f5bc249297dc7b2ff3531934e324ed
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: demo
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: 8443-tcp
+      port: 8443
+      protocol: TCP
+      targetPort: 8443
+    - name: 8778-tcp
+      port: 8778
+      protocol: TCP
+      targetPort: 8778
+    selector:
+      deploymentconfig: demo
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    name: demo
+  spec:
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: Service
+      name: demo
+      weight: 100
+    wildcardPolicy: None
+parameters:
+- description: "What environment are we running in"
+  name: ENVIRONMENT
+  value: dev
+labels:
+  app: demoapp-${ENVIRONMENT}
+

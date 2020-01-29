@@ -14,6 +14,13 @@ public class GreetingController {
 
 	@GetMapping("/greeting")
 	public Greeting greeting(@RequestParam(value = "name", defaultValue = "Tom") String name) {
+	
+		String env_name = System.getenv("ENVIRONMENT"); 
+		if ( env_name != null && env_name != "" ) {
+			name = env_name;		
+		}
+		
+		
 		return new Greeting(counter.incrementAndGet(), String.format(template, name));
 	}
 }

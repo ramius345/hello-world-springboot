@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: "2020-01-28T05:08:21Z"
+  labels:
+    app: demo
+    app.kubernetes.io/component: demo
+    app.kubernetes.io/instance: demo
+  name: demo
+  namespace: blah
+  resourceVersion: "2041417"
+  selfLink: /api/v1/namespaces/blah/services/demo
+  uid: 73a39052-4780-465b-b79a-e6d2431b2cef
+spec:
+  clusterIP: 172.30.4.92
+  ports:
+  - name: 8080-tcp
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  - name: 8443-tcp
+    port: 8443
+    protocol: TCP
+    targetPort: 8443
+  - name: 8778-tcp
+    port: 8778
+    protocol: TCP
+    targetPort: 8778
+  selector:
+    deploymentconfig: demo
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
