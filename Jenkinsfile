@@ -51,20 +51,16 @@ pipeline {
 		    prodTag = "${version}"
                 }
             }
-
-            // Using Maven run the unit tests
-	    stage('Unit Tests') {
-	        steps {
-		    echo "Running Unit Tests"
-		    sh "${mvnCmd} test"
-	        }
-	    }
-
-
-            
-
-            
-            
         }
+
+        // Using Maven run the unit tests
+	stage('Unit Tests') {
+	    steps {
+		echo "Running Unit Tests"
+		sh "${mvnCmd} test"
+	    }
+	}
+
+        
     }
 }
