@@ -119,13 +119,24 @@ pipeline {
 			    // dc.spec.template.spec.containers[0].env[0].value="${devTag} (${appName}-dev)"
 			    // openshift.apply(dc)
                             openshift.selector("dc", appName).rollout()
+                            
                             echo "Rollout complete"
 
                             echo "Starting watch"
                             def dc = openshift.selector("dc",appName).object()
                             def dc_version = dc.status.latestVersion
                             echo "Version of dc is ${dc_version}"
-			    def rc = openshift.selector("rc", "${appName}-${dc_version}").object()
+			    def rc = null
+                            echo "Attempting to get rc ${appName}-${dc_version}"
+                            sleep 1
+                            while ( rc == null ) {
+                                try {
+                                    rc = openshift.selector("rc", "${appName}-${dc_version}").object()
+                                    break
+                                } catch( Exception e) {
+                                    sleep 1
+                                }
+                            }
 
 			    echo "Waiting for ReplicationController ${appName}-${dc_version} to be ready"
 			    while (rc.spec.replicas != rc.status.readyReplicas) {
