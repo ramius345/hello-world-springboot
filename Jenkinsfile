@@ -120,6 +120,7 @@ pipeline {
 			    // openshift.apply(dc)
                             openshift.selector("dc", appName).rollout().latest();
 
+                            def dc = openshift.selector("dc",appName).object()
                             def dc_version = dc.status.latestVersion
 			    def rc = openshift.selector("rc", "${appName}-${dc_version}").object()
 
