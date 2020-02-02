@@ -1,3 +1,12 @@
+library identifier: "pipeline-library@v1.5",
+retriever: modernSCM(
+  [
+    $class: "GitSCMSource",
+    remote: "https://github.com/redhat-cop/pipeline-library.git"
+  ]
+)
+
+
 pipeline {
     agent {
 	kubernetes {
@@ -23,7 +32,7 @@ pipeline {
 	mvnCmd = "source /usr/local/bin/scl_enable && mvn"
 
 	// Images and Projects
-	imageName   = "hello-world"
+	imageName   = "helloworld"
 	devProject  = "pipeline-demo-dev"
 	testProject = "pipeline-demo-test"
 
@@ -64,22 +73,30 @@ pipeline {
 	    }
 	}
 
-
         // Build the OpenShift Image in OpenShift and tag it.
 	stage('Build and Tag OpenShift Image') {
-	    steps {
-	        echo "Building OpenShift container image ${imageName}:${devTag} in project ${devProject}."
-		script {
-		    openshift.withCluster() {
-			openshift.withProject("${devProject}") {
-			    openshift.selector("bc", "${buildConfigDev}").startBuild("--wait=true")
-			    openshift.tag("${isDev}:latest", "${imageName}:${devTag}")
-			}
-		    }
-		}
-	    }
+	    // steps {
+	    //     echo "Building OpenShift container image ${imageName}:${devTag} in project ${devProject}."
+	    //     script {
+	    //         openshift.withCluster() {
+	    //     	openshift.withProject("${devProject}") {
+	    //     	    openshift.selector("bc", "${buildConfigDev}").startBuild("--wait=true")
+	    //     	    openshift.tag("${isDev}:latest", "${imageName}:${devTag}")
+	    //     	}
+	    //         }
+	    //     }
+	    // }
+
+            steps{
+                echo "Building OpenShift container image ${imageName}:${devTag} in project ${devProject}."
+                binaryBuild(projectName: ${devProject}, buildConfigName: ${buildConfigDev}, buildFromPath: "oc-build")
+                tagImage(sourceImageName: ${buildConfigDev} , sourceImagePath: ${devProject}, toImagePath: "${imageName}:${devTag}")
+            }
+            
 	}
 
+
+        
         
     }
 }
