@@ -118,7 +118,7 @@ pipeline {
                             // def dc = openshift.selector("dc",appName).object()
 			    // dc.spec.template.spec.containers[0].env[0].value="${devTag} (${appName}-dev)"
 			    // openshift.apply(dc)
-                            openshift.selector("dc", appName).rollout().latest();
+                            openshift.selector("dc", appName).rollout()
                             echo "Rollout complete"
 
                             echo "Starting watch"
