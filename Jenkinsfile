@@ -89,7 +89,7 @@ pipeline {
 
             steps{
                 echo "Building OpenShift container image ${imageName}:${devTag} in project ${devProject}."
-                binaryBuild(projectName: "${devProject}", buildConfigName: "${buildConfigDev}", buildFromPath: "oc-build")
+                binaryBuild(projectName: "${devProject}", buildConfigName: "${buildConfigDev}", buildFromPath: ".")
                 tagImage(sourceImageName: "${buildConfigDev}" , sourceImagePath: "${devProject}", toImagePath: "${imageName}:${devTag}")
             }
             
