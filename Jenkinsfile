@@ -73,6 +73,13 @@ pipeline {
 	    }
 	}
 
+        stage('Build'){
+            steps {
+                echo "Running Build"
+                sh "${mvnCmd} -B clean install -DskipTests=true"
+            }
+        }
+
         // Build the OpenShift Image in OpenShift and tag it.
 	stage('Build and Tag OpenShift Image') {
 	    // steps {
