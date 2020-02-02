@@ -36,15 +36,14 @@ pipeline {
 	devProject  = "pipeline-demo-dev"
 	testProject = "pipeline-demo-test"
 
-        buildConfigDev = "helloworld"
-        isDev = "helloworld"
-        
+        appName = "helloworld"
+
 	// Tags
 	devTag      = "0.0-0"
 	testTag     = "0.0"
 	
 	// Blue-Green Settings
-	destApp     = "helloworld-green"
+	destApp     = "${appName}-green"
 	activeApp   = ""
     }
     
@@ -82,18 +81,6 @@ pipeline {
 
         // Build the OpenShift Image in OpenShift and tag it.
 	stage('Build and Tag OpenShift Image') {
-	    // steps {
-	    //     echo "Building OpenShift container image ${imageName}:${devTag} in project ${devProject}."
-	    //     script {
-	    //         openshift.withCluster() {
-	    //     	openshift.withProject("${devProject}") {
-	    //     	    openshift.selector("bc", "${buildConfigDev}").startBuild("--wait=true")
-	    //     	    openshift.tag("${isDev}:latest", "${imageName}:${devTag}")
-	    //     	}
-	    //         }
-	    //     }
-	    // }
-
             steps{
                 echo "Building OpenShift container image ${imageName}:${devTag} in project ${devProject}."
 
@@ -110,18 +97,21 @@ pipeline {
 	        script {
 	            openshift.withCluster() {
 	            	openshift.withProject("${devProject}") {
-                            def buildConfig = openshift.selector("bc", "${buildConfigDev}")
+                            def buildConfig = openshift.selector("bc", "${appName}")
 	            	    def build = buildConfig.startBuild("--from-dir=oc-build","--wait=true")
-                            openshift.tag("${isDev}:latest", "${imageName}:${devTag}")
+                            openshift.tag("${appName}:latest", "${imageName}:${devTag}")
 	            	}
 	            }
 	        }
 
             }
-            
 	}
 
-
+        stage('Rollout Dev') {
+            steps {
+                verifyDeployment(projectName: devProject, targetApp: appName)
+            }
+        }
         
         
     }
