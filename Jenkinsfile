@@ -89,7 +89,16 @@ pipeline {
 
             steps{
                 echo "Building OpenShift container image ${imageName}:${devTag} in project ${devProject}."
-                binaryBuild(projectName: "${devProject}", buildConfigName: "${buildConfigDev}", buildFromPath: ".")
+
+                sh """
+                ls target/*
+                rm -rf oc-build && mkdir -p oc-build/deployments
+                for t in \$(echo "jar;war;ear" | tr ";" "\\n"); do
+                  cp -rfv ./target/*.\$t oc-build/deployments/ 2> /dev/null || echo "No \$t files"
+                done
+                """
+
+                binaryBuild(projectName: "${devProject}", buildConfigName: "${buildConfigDev}", buildFromPath: "oc-build")
                 tagImage(sourceImageName: "${buildConfigDev}" , sourceImagePath: "${devProject}", toImagePath: "${imageName}:${devTag}")
             }
             
