@@ -1,42 +1,15 @@
-library identifier: "pipeline-library@v1.5",
-retriever: modernSCM(
-  [
-    $class: "GitSCMSource",
-    remote: "https://github.com/redhat-cop/pipeline-library.git"
-  ]
-)
-
-
 pipeline {
-    agent {
-	kubernetes {
-	    label "maven-skopeo-agent"
-	    cloud "openshift"
-	    inheritFrom "maven"
-	    containerTemplate {
-		name "jnlp"
-		image "image-registry.openshift-image-registry.svc:5000/jenkins-test-2/jenkins-agent-appdev:latest"
-		resourceRequestMemory "2Gi"
-		resourceLimitMemory "2Gi"
-		resourceRequestCpu "2"
-		resourceLimitCpu "2"
-	    }
-	}
-    }
-
     environment { 
 	// Define global variables
-	// Set Maven command to always include Nexus Settings
-	// NOTE: Somehow an inline pod template in a declarative pipeline
-	//       needs the "scl_enable" before calling maven.
+
+        // Maven Command
 	mvnCmd = "source /usr/local/bin/scl_enable && mvn"
 
 	// Images and Projects
-	imageName   = "helloworld"
+        appName = "helloworld"
+        pipelineProject = "jenkins-test-2"
 	devProject  = "pipeline-demo-dev"
 	testProject = "pipeline-demo-test"
-
-        appName = "helloworld"
 
 	// Tags
 	devTag      = "0.0-0"
@@ -45,6 +18,22 @@ pipeline {
 	// Blue-Green Settings
 	destApp     = "${appName}-green"
 	activeApp   = ""
+    }
+
+    agent {
+	kubernetes {
+	    label "maven-skopeo-agent"
+	    cloud "openshift"
+	    inheritFrom "maven"
+	    containerTemplate {
+		name "jnlp"
+		image "image-registry.openshift-image-registry.svc:5000/${pipelineProject}/jenkins-agent-appdev:latest"
+		resourceRequestMemory "2Gi"
+		resourceLimitMemory "2Gi"
+		resourceRequestCpu "2"
+		resourceLimitCpu "2"
+	    }
+	}
     }
     
     stages {
@@ -82,7 +71,7 @@ pipeline {
         // Build the OpenShift Image in OpenShift and tag it.
 	stage('Build and Tag OpenShift Image') {
             steps{
-                echo "Building OpenShift container image ${imageName}:${devTag} in project ${devProject}."
+                echo "Building OpenShift container image ${appName}:${devTag} in project ${devProject}."
 
                 sh """
                 ls target/*
@@ -93,13 +82,13 @@ pipeline {
                 """
 
 
-	        echo "Building OpenShift container image ${imageName}:${devTag} in project ${devProject}."
+	        echo "Building OpenShift container image ${appName}:${devTag} in project ${devProject}."
 	        script {
 	            openshift.withCluster() {
 	            	openshift.withProject("${devProject}") {
                             def buildConfig = openshift.selector("bc", "${appName}")
 	            	    def build = buildConfig.startBuild("--from-dir=oc-build","--wait=true")
-                            openshift.tag("${appName}:latest", "${imageName}:${devTag}")
+                            openshift.tag("${appName}:latest", "${appName}:${devTag}")
 	            	}
 	            }
 	        }
@@ -113,8 +102,10 @@ pipeline {
                     openshift.withCluster() {
 		        openshift.withProject("${devProject}") {
                             echo "Setting container image"
-                            openshift.set("image", "dc/${appName}", "${appName}=image-registry.openshift-image-registry.svc:5000/${devProject}/${imageName}:${devTag}")
+                            openshift.set("image", "dc/${appName}", "${appName}=image-registry.openshift-image-registry.svc:5000/${devProject}/${appName}:${devTag}")
                             echo "Finding DC"
+
+                            //Setting an env value
                             // def dc = openshift.selector("dc",appName).object()
 			    // dc.spec.template.spec.containers[0].env[0].value="${devTag} (${appName}-dev)"
 			    // openshift.apply(dc)
