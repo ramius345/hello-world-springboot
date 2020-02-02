@@ -109,27 +109,27 @@ pipeline {
 
         stage('Rollout Dev') {
             steps {
-                openshift.withCluster() {
-		    openshift.withProject("${devProject}") {
-                        openshift.set("image", "dc/${appName}", "tasks=image-registry.openshift-image-registry.svc:5000/${devProject}/${imageName}:${devTag}")
-                        def dc = openshift.selector("dc",appName).object()
-			dc.spec.template.spec.containers[0].env[0].value="${devTag} (${appName}-dev)"
-			openshift.apply(dc)
-                        openshift.selector("dc", appName).rollout().latest();
+                script {
+                    openshift.withCluster() {
+		        openshift.withProject("${devProject}") {
+                            openshift.set("image", "dc/${appName}", "tasks=image-registry.openshift-image-registry.svc:5000/${devProject}/${imageName}:${devTag}")
+                            def dc = openshift.selector("dc",appName).object()
+			    dc.spec.template.spec.containers[0].env[0].value="${devTag} (${appName}-dev)"
+			    openshift.apply(dc)
+                            openshift.selector("dc", appName).rollout().latest();
 
-                        def dc_version = dc.status.latestVersion
-			def rc = openshift.selector("rc", "${appName}-${dc_version}").object()
+                            def dc_version = dc.status.latestVersion
+			    def rc = openshift.selector("rc", "${appName}-${dc_version}").object()
 
-			echo "Waiting for ReplicationController ${appName}-${dc_version} to be ready"
-			while (rc.spec.replicas != rc.status.readyReplicas) {
-			    sleep 5
-			    rc = openshift.selector("rc", "${appName}-${dc_version}").object()
-			}
+			    echo "Waiting for ReplicationController ${appName}-${dc_version} to be ready"
+			    while (rc.spec.replicas != rc.status.readyReplicas) {
+			        sleep 5
+			        rc = openshift.selector("rc", "${appName}-${dc_version}").object()
+			    }
+                        }
                     }
                 }
             }
         }
-        
-        
     }
 }
