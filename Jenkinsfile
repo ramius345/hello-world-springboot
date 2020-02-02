@@ -105,18 +105,18 @@ pipeline {
                 done
                 """
 
-                steps {
-	            echo "Building OpenShift container image ${imageName}:${devTag} in project ${devProject}."
-	            script {
-	                openshift.withCluster() {
-	            	    openshift.withProject("${devProject}") {
-                                def buildConfig = openshift.selector("bc", "${buildConfigDev}")
-	            	        def build = buildConfig.startBuild("--from-dir=oc-build","--wait=true")
-                                openshift.tag("${isDev}:latest", "${imageName}:${devTag}")
-	            	    }
-	                }
+
+	        echo "Building OpenShift container image ${imageName}:${devTag} in project ${devProject}."
+	        script {
+	            openshift.withCluster() {
+	            	openshift.withProject("${devProject}") {
+                            def buildConfig = openshift.selector("bc", "${buildConfigDev}")
+	            	    def build = buildConfig.startBuild("--from-dir=oc-build","--wait=true")
+                            openshift.tag("${isDev}:latest", "${imageName}:${devTag}")
+	            	}
 	            }
 	        }
+
             }
             
 	}
