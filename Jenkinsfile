@@ -112,7 +112,7 @@ pipeline {
                 script {
                     openshift.withCluster() {
 		        openshift.withProject("${devProject}") {
-                            openshift.set("image", "dc/${appName}", "tasks=image-registry.openshift-image-registry.svc:5000/${devProject}/${imageName}:${devTag}")
+                            openshift.set("image", "dc/${appName}", "${appName}=image-registry.openshift-image-registry.svc:5000/${devProject}/${imageName}:${devTag}")
                             def dc = openshift.selector("dc",appName).object()
 			    dc.spec.template.spec.containers[0].env[0].value="${devTag} (${appName}-dev)"
 			    openshift.apply(dc)
