@@ -2,14 +2,13 @@ pipeline {
     environment { 
 	// Define global variables
 
-        // Maven Command
-	mvnCmd = "source /usr/local/bin/scl_enable && mvn"
-
 	// Images and Projects
         appName = "helloworld"
-        pipelineProject = "jenkins-test-2"
 	devProject  = "pipeline-demo-dev"
 	testProject = "pipeline-demo-test"
+
+        // Maven Command
+	mvnCmd = "source /usr/local/bin/scl_enable && mvn"
 
 	// Tags
 	devTag      = "0.0-0"
@@ -27,7 +26,7 @@ pipeline {
 	    inheritFrom "maven"
 	    containerTemplate {
 		name "jnlp"
-		image "image-registry.openshift-image-registry.svc:5000/${pipelineProject}/jenkins-agent-appdev:latest"
+		image "image-registry.openshift-image-registry.svc:5000/jenkins-test-2/jenkins-agent-appdev:latest"
 		resourceRequestMemory "2Gi"
 		resourceLimitMemory "2Gi"
 		resourceRequestCpu "2"
