@@ -1,14 +1,10 @@
+def appName = "helloworld"
 def pipelineProject = "jenkins-test-2"
+def devProject = "pipeline-demo-dev"
+def testProject = "pipeline-demo-test"
 
 pipeline {
     environment { 
-	// Define global variables
-
-	// Images and Projects
-        appName = "helloworld"
-	devProject  = "pipeline-demo-dev"
-	testProject = "pipeline-demo-test"
-
         // Maven Command
 	mvnCmd = "source /usr/local/bin/scl_enable && mvn"
 
