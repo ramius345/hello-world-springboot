@@ -15,7 +15,7 @@ pipeline {
 	}
     }
 
-   environment { 
+    environment { 
 	// Define global variables
 	// Set Maven command to always include Nexus Settings
 	// NOTE: Somehow an inline pod template in a declarative pipeline
@@ -24,15 +24,18 @@ pipeline {
 
 	// Images and Projects
 	imageName   = "hello-world"
-	devProject  = "hello-world-dev"
-	testProject = "hello-world-test"
+	devProject  = "pipeline-demo-dev"
+	testProject = "pipeline-demo-test"
 
+        buildConfigDev = "helloworld"
+        isDev = "helloworld"
+        
 	// Tags
 	devTag      = "0.0-0"
 	testTag     = "0.0"
 	
 	// Blue-Green Settings
-	destApp     = "hello-world-green"
+	destApp     = "helloworld-green"
 	activeApp   = ""
     }
     
@@ -44,7 +47,7 @@ pipeline {
                 script {
                     def pom = readMavenPom file: 'pom.xml'
 		    def version = pom.version
-			
+		    
 		    // Set the tag for the development image: version + build number
 		    devTag  = "${version}-" + currentBuild.number
 		    // Set the tag for the production image: version
@@ -58,6 +61,22 @@ pipeline {
 	    steps {
 		echo "Running Unit Tests"
 		sh "${mvnCmd} test"
+	    }
+	}
+
+
+        // Build the OpenShift Image in OpenShift and tag it.
+	stage('Build and Tag OpenShift Image') {
+	    steps {
+	        echo "Building OpenShift container image ${imageName}:${devTag} in project ${devProject}."
+		script {
+		    openshift.withCluster() {
+			openshift.withProject("${devProject}") {
+			    openshift.selector("bc", "${buildConfigDev}").startBuild("--wait=true")
+			    openshift.tag("${isDev}:latest", "${imageName}:${devTag}")
+			}
+		    }
+		}
 	    }
 	}
 
