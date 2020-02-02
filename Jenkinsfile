@@ -112,10 +112,12 @@ pipeline {
                 script {
                     openshift.withCluster() {
 		        openshift.withProject("${devProject}") {
+                            echo "Setting container image"
                             openshift.set("image", "dc/${appName}", "${appName}=image-registry.openshift-image-registry.svc:5000/${devProject}/${imageName}:${devTag}")
-                            def dc = openshift.selector("dc",appName).object()
-			    dc.spec.template.spec.containers[0].env[0].value="${devTag} (${appName}-dev)"
-			    openshift.apply(dc)
+                            echo "Finding DC"
+                            // def dc = openshift.selector("dc",appName).object()
+			    // dc.spec.template.spec.containers[0].env[0].value="${devTag} (${appName}-dev)"
+			    // openshift.apply(dc)
                             openshift.selector("dc", appName).rollout().latest();
 
                             def dc_version = dc.status.latestVersion
