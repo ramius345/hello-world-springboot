@@ -1,7 +1,7 @@
-def appName = "myproject"
+def appName = "mydemo"
 def pipelineProject = "jenkins-pipeline-test-bash"
-def devProject = "demo-dev-bash"
-def testProject = "demo-test-bash"
+def devProject = "demo-bash-dev"
+def testProject = "<TEST_PROJECT>"
 
 pipeline {
     environment { 
