@@ -58,7 +58,9 @@ pipeline {
             }
             steps {
                 script {
-                    sh 'npm --version'
+                    sh 'which npm'
+                    sh 'which node'
+                    sh 'node -v'
                 }
             }
         }
