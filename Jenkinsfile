@@ -53,11 +53,11 @@ pipeline {
         }
 
         stage('NodeJS'){
-            agent('nodejs') {
-                script {
-                    sh 'npm --version'
-                }
-
+            agent{
+                label 'nodejs'
+            }
+            script {
+                sh 'npm --version'
             }
         }
 
