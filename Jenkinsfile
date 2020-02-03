@@ -32,6 +32,8 @@ pipeline {
 	    }
 	}
     }
+
+    
     
     stages {
         stage('Checkout Source'){
@@ -50,6 +52,16 @@ pipeline {
             }
         }
 
+        stage('NodeJS'){
+            agent('nodejs') {
+                script {
+                    sh 'npm --version'
+                }
+
+            }
+        }
+
+        
         // Using Maven run the unit tests
 	stage('Unit Tests') {
 	    steps {
@@ -65,6 +77,7 @@ pipeline {
             }
         }
 
+        
         // Build the OpenShift Image in OpenShift and tag it.
 	stage('Build and Tag OpenShift Image') {
             steps{
