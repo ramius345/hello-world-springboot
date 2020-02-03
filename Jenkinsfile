@@ -52,19 +52,25 @@ pipeline {
             }
         }
 
-        stage('NodeJS'){
-            agent{
-                label 'nodejs-10'
-            }
+        // stage('NodeJS'){
+        //     agent{
+        //         label 'nodejs'
+        //     }
+        //     steps {
+        //         script {
+        //             sh 'which npm'
+        //             sh 'which node'
+        //             sh 'node -v'
+        //         }
+        //     }
+        // }
+
+        stage('Node test') {
             steps {
-                script {
-                    sh 'which npm'
-                    sh 'which node'
-                    sh 'node -v'
-                }
+                echo "Testing nodejs"
+                sh "scl enable rh-nodejs10 'node -v'"
             }
         }
-
         
         // Using Maven run the unit tests
 	stage('Unit Tests') {
