@@ -54,7 +54,7 @@ pipeline {
 
         stage('NodeJS'){
             agent{
-                label 'nodejs'
+                label 'nodejs-10'
             }
             steps {
                 script {
