@@ -56,8 +56,10 @@ pipeline {
             agent{
                 label 'nodejs'
             }
-            script {
-                sh 'npm --version'
+            steps {
+                script {
+                    sh 'npm --version'
+                }
             }
         }
 
