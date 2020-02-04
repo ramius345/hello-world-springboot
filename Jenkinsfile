@@ -95,14 +95,17 @@ pipeline {
 
         // Build the httpd image and tag it
         stage('Build httpd Image') {
-            echo "Copying files for httpd container image ${appName}-httpd:${devTag} in project ${devProject}."
-            sh """
-            mkdir -p httpd_files
-            echo 'hello' > httpd_files/hello.txt
-            """
-
-            echo "Building Openshift httpd container image ${appName}-httpd:${devTag} in project ${devProject}."
             script {
+                echo "Copying files for httpd container image ${appName}-httpd:${devTag} in project ${devProject}."
+                sh """
+                mkdir -p httpd_files
+                echo 'hello' > httpd_files/hello.txt
+                """
+
+                echo "Building Openshift httpd container image ${appName}-httpd:${devTag} in project ${devProject}."
+
+
+                
 	        openshift.withCluster() {
 	            openshift.withProject("${devProject}") {
                         def buildConfig = openshift.selector("bc", "${appName}-httpd")
