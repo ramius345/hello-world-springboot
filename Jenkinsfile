@@ -144,6 +144,9 @@ pipeline {
                             sleep 1
                             while ( rc == null ) {
                                 try {
+                                    dc = openshift.selector("dc",appName).object()
+                                    dc_version = dc.status.latestVersion
+                                    echo "Version of dc is ${dc_version}"
                                     rc = openshift.selector("rc", "${appName}-${dc_version}").object()
                                     break
                                 } catch( Exception e) {
@@ -154,6 +157,9 @@ pipeline {
 			    echo "Waiting for ReplicationController ${appName}-${dc_version} to be ready"
 			    while (rc.spec.replicas != rc.status.readyReplicas) {
 			        sleep 5
+                                dc = openshift.selector("dc",appName).object()
+                                dc_version = dc.status.latestVersion
+                                echo "Version of dc is ${dc_version}"
 			        rc = openshift.selector("rc", "${appName}-${dc_version}").object()
 			    }
                         }
@@ -186,6 +192,9 @@ pipeline {
                             sleep 1
                             while ( rc == null ) {
                                 try {
+                                    dc = openshift.selector("dc","${appName}-httpd").object()
+                                    dc_version = dc.status.latestVersion
+                                    echo "Version of dc is ${dc_version}"
                                     rc = openshift.selector("rc", "${appName}-httpd-${dc_version}").object()
                                     break
                                 } catch( Exception e) {
@@ -196,6 +205,9 @@ pipeline {
 			    echo "Waiting for ReplicationController ${appName}-httpd-${dc_version} to be ready"
 			    while (rc.spec.replicas != rc.status.readyReplicas) {
 			        sleep 5
+                                dc = openshift.selector("dc","${appName}-httpd").object()
+                                dc_version = dc.status.latestVersion
+                                echo "Version of dc is ${dc_version}"
 			        rc = openshift.selector("rc", "${appName}-httpd-${dc_version}").object()
 			    }
                         }
