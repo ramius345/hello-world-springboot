@@ -161,5 +161,51 @@ pipeline {
                 }
             }
         }
+
+
+
+
+        stage('Rollout Httpd') {
+            steps {
+                script {
+                    openshift.withCluster() {
+		        openshift.withProject("${devProject}") {
+                            echo "Setting container image"
+                            openshift.set("image", "dc/${appName}-httpd", "${appName}-httpd=image-registry.openshift-image-registry.svc:5000/${devProject}/${appName}-httpd:${devTag}")
+                            echo "Finding DC"
+
+                            openshift.selector("dc", "${appName}-httpd").rollout()
+                            echo "Rollout complete"
+
+                            echo "Starting watch"
+                            def dc = openshift.selector("dc","${appName}-httpd").object()
+                            def dc_version = dc.status.latestVersion
+                            echo "Version of dc is ${dc_version}"
+			    def rc = null
+                            echo "Attempting to get rc ${appName}-httpd-${dc_version}"
+                            sleep 1
+                            while ( rc == null ) {
+                                try {
+                                    rc = openshift.selector("rc", "${appName}-httpd-${dc_version}").object()
+                                    break
+                                } catch( Exception e) {
+                                    sleep 1
+                                }
+                            }
+
+			    echo "Waiting for ReplicationController ${appName}-httpd-${dc_version} to be ready"
+			    while (rc.spec.replicas != rc.status.readyReplicas) {
+			        sleep 5
+			        rc = openshift.selector("rc", "${appName}-httpd-${dc_version}").object()
+			    }
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+        
     }
 }
