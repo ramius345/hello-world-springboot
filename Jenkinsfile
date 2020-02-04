@@ -95,26 +95,27 @@ pipeline {
 
         // Build the httpd image and tag it
         stage('Build httpd Image') {
-            script {
-                echo "Copying files for httpd container image ${appName}-httpd:${devTag} in project ${devProject}."
-                sh """
-                mkdir -p httpd_files
-                echo 'hello' > httpd_files/hello.txt
-                """
+            steps {
+                script {
+                    echo "Copying files for httpd container image ${appName}-httpd:${devTag} in project ${devProject}."
+                    sh """
+                    mkdir -p httpd_files
+                    echo 'hello' > httpd_files/hello.txt
+                    """
 
-                echo "Building Openshift httpd container image ${appName}-httpd:${devTag} in project ${devProject}."
+                    echo "Building Openshift httpd container image ${appName}-httpd:${devTag} in project ${devProject}."
 
 
-                
-	        openshift.withCluster() {
-	            openshift.withProject("${devProject}") {
-                        def buildConfig = openshift.selector("bc", "${appName}-httpd")
-	            	def build = buildConfig.startBuild("--from-dir=httpd_files","--wait=true")
-                        openshift.tag("${appName}-httpd:latest", "${appName}-httpd:${devTag}")
+                    
+	            openshift.withCluster() {
+	                openshift.withProject("${devProject}") {
+                            def buildConfig = openshift.selector("bc", "${appName}-httpd")
+	            	    def build = buildConfig.startBuild("--from-dir=httpd_files","--wait=true")
+                            openshift.tag("${appName}-httpd:latest", "${appName}-httpd:${devTag}")
+	                }
 	            }
 	        }
-	    }
-            
+            }
         }
         
         stage('Rollout Dev') {
