@@ -100,7 +100,7 @@ pipeline {
                     echo "Copying files for httpd container image ${appName}-httpd:${devTag} in project ${devProject}."
                     sh """
                     mkdir -p httpd_files
-                    echo 'another test' > ${WORKSPACE}/httpd_files/hello.txt
+                    echo 'another test' > ${WORKSPACE}/httpd_files/test.txt
                     curl -v -u admin:r3dh4t1! -k http://nexus-nexus.apps.cluster-ee65.sandbox1895.opentlc.com/repository/demo/test.txt --upload-file ${WORKSPACE}/httpd_files/test.txt
                     """
 
