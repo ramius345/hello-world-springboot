@@ -46,18 +46,19 @@ pipeline {
 		    devTag  = "${version}-" + currentBuild.number
 		    // Set the tag for the production image: version
 		    prodTag = "${version}"
+                    
+                    // example of using passwords from secrets.
+                    // withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: "${pipelineProject}-password-test", passwordVariable: 'PASSWORD']]) {
+                    //     // available as an env variable, but will be masked if you try to print it out any which way
+                    //     // note: single quotes prevent Groovy interpolation; expansion is by Bourne Shell, which is what you want
+                    //     sh 'echo $PASSWORD'
+                    //     // also available as a Groovy variable
+                    //     echo PASSWORD
+                    //     // or inside double quotes for string interpolation
+                    //     echo "token is $PASSWORD"
 
-                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: "${pipelineProject}-password-test", passwordVariable: 'PASSWORD']]) {
-                        // available as an env variable, but will be masked if you try to print it out any which way
-                        // note: single quotes prevent Groovy interpolation; expansion is by Bourne Shell, which is what you want
-                        sh 'echo $PASSWORD'
-                        // also available as a Groovy variable
-                        echo PASSWORD
-                        // or inside double quotes for string interpolation
-                        echo "token is $PASSWORD"
-
-                        sh "echo $PASSWORD | sed 's/foo/bar/g'"
-                    }
+                    //     sh "echo $PASSWORD | sed 's/foo/bar/g'"
+                    // }
 
                 }
             }
